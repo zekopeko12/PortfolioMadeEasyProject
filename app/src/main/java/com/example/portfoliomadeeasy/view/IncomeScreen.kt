@@ -172,9 +172,7 @@ fun IncomeItem(
             )
         }
 
-        Row(
-
-        ) {
+        Row{
             Button(
                 onClick = { onEdit(income) },
                 modifier = Modifier

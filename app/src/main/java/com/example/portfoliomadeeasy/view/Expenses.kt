@@ -127,7 +127,7 @@ fun Expenses(
                         }
                     )
 
-                    Category.values().forEach { category ->
+                    Category.entries.forEach { category ->
                         DropdownMenuItem(
                             text = { Text(category.displayName) },
                             onClick = {
@@ -230,9 +230,7 @@ fun ExpenseItem(
             )
         }
 
-        Row(
-
-        ) {
+        Row {
             Button(
                 onClick = { onEdit(expense) },
                 modifier = Modifier

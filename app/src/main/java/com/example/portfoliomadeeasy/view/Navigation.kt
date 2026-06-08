@@ -57,7 +57,9 @@ fun NavigationController(
         composable(Routes.SCREEN_LOGIN){
             LoginScreen(
                 navController,
-                authViewModel
+                authViewModel,
+                assetsViewModel,
+                expenseGoalsViewModel,
             )
         }
 
@@ -72,10 +74,7 @@ fun NavigationController(
         composable(Routes.SCREEN_ASSETS_LIST) {
             AssetsScreen(
                 navController,
-                assetsViewModel,
-                finnhubKey = "d2nmchhr01qs6r4cjgd0d2nmchhr01qs6r4cjgdg",
-                metalsKey = "YR7YA0NHTCULB6S406CR946S406CR",
-                authViewModel = authViewModel
+                assetsViewModel
             )
         }
 
@@ -115,9 +114,7 @@ fun NavigationController(
                     onSave = { updatedExpense ->
                         expenseGoalsViewModel.updateExpense(updatedExpense)
                         navController.popBackStack()
-                    },
-                    navigation = navController,
-                    viewModel = expenseGoalsViewModel
+                    }
                 )
             }
         }
@@ -151,9 +148,7 @@ fun NavigationController(
                     onSave = { updatedIncome ->
                         expenseGoalsViewModel.updateIncome(updatedIncome)
                         navController.popBackStack()
-                    },
-                    navigation = navController,
-                    viewModel = expenseGoalsViewModel
+                    }
                 )
             }
 
@@ -189,8 +184,7 @@ fun NavigationController(
                         expenseGoalsViewModel.updateFinancialGoal(updatedGoal)
                         navController.popBackStack()
                     },
-                    navigation = navController,
-                    viewModel = expenseGoalsViewModel
+                    navigation = navController
                 )
             }
 
@@ -198,8 +192,7 @@ fun NavigationController(
 
         composable(Routes.SCREEN_STATS) {
             StatsScreen(
-                expenseGoalsViewModel,
-                navController
+                expenseGoalsViewModel
             )
         }
     }

@@ -23,12 +23,16 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.portfoliomadeeasy.viewmodel.AssetsViewModel
 import com.example.portfoliomadeeasy.viewmodel.AuthViewModel
+import com.example.portfoliomadeeasy.viewmodel.ExpenseGoalsViewModel
 
 @Composable
 fun LoginScreen(
     navController: NavController,
-    authViewModel: AuthViewModel
+    authViewModel: AuthViewModel,
+    assetViewModel: AssetsViewModel,
+    expenseGoalsViewModel: ExpenseGoalsViewModel
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -70,7 +74,9 @@ fun LoginScreen(
             if (errorMessage.isNotEmpty()) {
                 Text(
                     text = errorMessage,
-                    color = MaterialTheme.colorScheme.error
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 4.dp)
                 )
             }
 
@@ -78,12 +84,19 @@ fun LoginScreen(
                 onClick = {
                     authViewModel.login(
                         email = email,
-                        password = password
-                    ) {
-                        navController.navigate(Routes.SCREEN_HOME) {
-                            popUpTo("Login") { inclusive = true }
+                        password = password,
+                        onSuccess = {
+                            expenseGoalsViewModel.reloadData()
+                            assetViewModel.loadAllData()
+                            navController.navigate(Routes.SCREEN_HOME) {
+                                popUpTo("Login") { inclusive = true }
+                            }
+                        },
+                        onError = { error ->
+                            errorMessage = error
                         }
-                    }
+                    )
+
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {

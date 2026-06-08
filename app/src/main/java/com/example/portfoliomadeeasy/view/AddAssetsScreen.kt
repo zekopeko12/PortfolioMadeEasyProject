@@ -1,7 +1,5 @@
 package com.example.portfoliomadeeasy.view
 
-import android.R.attr.text
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,7 +13,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -31,52 +28,44 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.portfoliomadeeasy.model.UserAsset
 import com.example.portfoliomadeeasy.remote.model.Asset
-import com.example.portfoliomadeeasy.repository.AssetsRepository
 import com.example.portfoliomadeeasy.viewmodel.AssetsViewModel
-import com.example.portfoliomadeeasy.viewmodel.AssetsViewModelFactory
-import com.example.portfoliomadeeasy.viewmodel.AuthViewModel
-import com.example.portfoliomadeeasy.viewmodel.ExpenseGoalsViewModel
-import kotlinx.coroutines.launch
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import com.example.portfoliomadeeasy.R
 import android.Manifest.permission
+import android.widget.Toast
 
 @Composable
 fun AssetsScreen(
     navController: NavController,
     assetsViewModel: AssetsViewModel,
-    authViewModel: AuthViewModel,
-    finnhubKey: String,
-    metalsKey: String
 ) {
-    val repository = AssetsRepository(finnhubKey, metalsKey)
     val context = LocalContext.current
     val state by assetsViewModel.state.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
 
-    // Standard Android Activity Result Launcher for permissions
     val permissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
         androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
+    ){ isGranted ->
+        if (!isGranted) {
+            Toast.makeText(
+                context,
+                "Notifikacije su onemogućene. Možete ih uključiti u postavkama.",
+                Toast.LENGTH_LONG
+            ).show()
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -223,69 +212,6 @@ fun AssetItem(
                 }
             }
 
-        }
-    }
-}
-
-@Composable
-fun UserAssetItem(
-    userAsset: UserAsset,
-    onSell: (Double) -> Unit
-) {
-    var sellAmount by remember { mutableStateOf("") }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text(userAsset.name, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                    Text("Količina: ${userAsset.quantity}", fontSize = 14.sp)
-                }
-                Column(horizontalAlignment = Alignment.End) {
-                    Text("Kupovna: $${userAsset.buyPrice}", fontSize = 14.sp)
-                    Text(
-                        "Trenutna: $${userAsset.currentPrice}",
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                OutlinedTextField(
-                    value = sellAmount,
-                    onValueChange = { sellAmount = it },
-                    label = { Text("Kol.") },
-                    modifier = Modifier.weight(1f),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number
-                    )
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(
-                    onClick = {
-                        val qty = sellAmount.toDoubleOrNull() ?: 0.0
-                        if (qty > 0 && qty <= userAsset.quantity) {
-                            onSell(qty)
-                            sellAmount = "" // Reset polja
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error
-                    )
-                ) {
-                    Text("Prodaj")
-                }
-            }
         }
     }
 }

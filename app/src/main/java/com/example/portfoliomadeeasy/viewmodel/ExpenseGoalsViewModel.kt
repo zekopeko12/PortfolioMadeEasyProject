@@ -26,6 +26,13 @@ class ExpenseGoalsViewModel : ViewModel() {
         fetchDatabaseData()
     }
 
+    fun reloadData() {
+        expenseData.clear()
+        incomeData.clear()
+        financialGoalData.clear()
+        fetchDatabaseData()
+    }
+
     private fun fetchDatabaseData() {
         db.collection("expenses")
             .whereEqualTo("userId", uid)

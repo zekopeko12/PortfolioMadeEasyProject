@@ -1,7 +1,10 @@
 package com.example.portfoliomadeeasy.repository
 
+import android.util.Log
 import com.example.portfoliomadeeasy.remote.ApiClient
 import com.example.portfoliomadeeasy.remote.model.Asset
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 class AssetsRepository(
     private val finnhubKey: String,
@@ -49,11 +52,34 @@ class AssetsRepository(
         }
     }
 
-    suspend fun getAllAssets(): List<Asset> {
-        val crypto = getCryptoAssets()
-        val stocks = getStockAssets()
-        val metals = getMetalAssets()
+    suspend fun getAllAssets(): List<Asset> = coroutineScope {
+        val crypto = async {
+            try{
+                getCryptoAssets()
+            } catch (e: Exception) {
+                Log.e("REPOSITORY", "Greska pri dobavljanju (crypto): ${e.message}", e)
+                emptyList()
+            }
+        }
 
-        return crypto + stocks + metals
+        val stocks = async {
+            try{
+                getStockAssets()
+            } catch (e: Exception) {
+                Log.e("REPOSITORY", "Greska pri dobavljanju (stocks): ${e.message}", e)
+                emptyList()
+            }
+        }
+
+        val metals = async {
+            try{
+                getMetalAssets()
+            } catch (e: Exception) {
+                Log.e("REPOSITORY", "Greska pri dobavljanju (metals): ${e.message}", e)
+                emptyList()
+            }
+        }
+
+        crypto.await() + stocks.await() + metals.await()
     }
 }

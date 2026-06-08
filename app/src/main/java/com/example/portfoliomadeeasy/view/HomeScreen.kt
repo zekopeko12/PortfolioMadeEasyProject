@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -35,6 +36,10 @@ fun HomeScreen(
     val expenses = expenseGoalsViewModel.expenseData
 
     val recentExpenses = expenses.sortedByDescending { it.date }.take(3)
+
+    LaunchedEffect(Unit) {
+        expenseGoalsViewModel.reloadData()
+    }
 
     Column(
         modifier = Modifier

@@ -84,18 +84,28 @@ fun Registration(
 
             Button(
                 onClick = {
+                    if(email.isBlank() || password.isBlank()) {
+                        errorMessage = "Morate popuniti sva polja"
+                        return@Button
+                    }
+
                     if (password != confirmPassword) {
                         errorMessage = "Lozinke se ne slažu"
                         return@Button
                     }
+
                     authViewModel.register(
                         email = email,
-                        password = password
-                    ) {
-                        navController.navigate(Routes.SCREEN_HOME) {
-                            popUpTo("Register") { inclusive = true }
+                        password = password,
+                        onSuccess = {
+                            navController.navigate(Routes.SCREEN_HOME) {
+                                popUpTo("Register") { inclusive = true }
+                            }
+                        },
+                        onError = { greska ->
+                            errorMessage = greska
                         }
-                    }
+                    )
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {

@@ -1,15 +1,9 @@
 package com.example.portfoliomadeeasy.viewmodel
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.Context
-import android.os.Build
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
-import androidx.core.app.NotificationCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.portfoliomadeeasy.R
 import com.example.portfoliomadeeasy.model.AssetState
 import com.example.portfoliomadeeasy.model.Expense
 import com.example.portfoliomadeeasy.model.Income
@@ -40,7 +34,6 @@ class AssetsViewModel(
 
     val assetData = mutableStateListOf<UserAsset>()
 
-    // Start with isLoading = true to prevent the "No Assets" flicker
     private val _state = MutableStateFlow(AssetState(isLoading = true))
     val state: StateFlow<AssetState> = _state.asStateFlow()
 
@@ -48,10 +41,9 @@ class AssetsViewModel(
         loadAllData()
     }
 
-    // AssetsViewModel.kt
-
     fun loadAllData() {
         viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true, error = null)
             try {
                 val snapshot = db.collection("asset")
                     .whereEqualTo("userId", uid)
@@ -63,12 +55,18 @@ class AssetsViewModel(
                         id = doc.id // Ručno dodijeli Firebase Document ID
                     }
                 }
-
-                // Ažuriraj stanje
                 assetData.clear()
                 assetData.addAll(userList)
-                _state.value = _state.value.copy(userAssets = userList, isLoading = false)
+
+                val marketAssets = repository.getAllAssets()
+
+                _state.value = _state.value.copy(
+                    userAssets = userList,
+                    assets = marketAssets,
+                    isLoading = false
+                )
             } catch (e: Exception) {
+                Log.e("ASSETS", "Greška: ${e.message}", e)
                 _state.value = _state.value.copy(isLoading = false, error = e.message)
             }
         }

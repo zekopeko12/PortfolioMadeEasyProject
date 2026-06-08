@@ -4,6 +4,10 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.FirebaseUser
 
 class AuthViewModel : ViewModel() {
@@ -14,14 +18,12 @@ class AuthViewModel : ViewModel() {
     private val _errorMessage = mutableStateOf("")
 
     val currentUser: State<FirebaseUser?> = _currentUser
-    val isLoading: State<Boolean> = _isLoading
-    val errorMessage: State<String> = _errorMessage
-
 
     fun register(
         email: String,
         password: String,
-        onSuccess: () -> Unit
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
     ) {
         _isLoading.value = true
         _errorMessage.value = ""
@@ -32,12 +34,24 @@ class AuthViewModel : ViewModel() {
                     _currentUser.value = auth.currentUser
                     onSuccess()
                 } else {
-                    _errorMessage.value = task.exception?.localizedMessage ?: "Registration failed"
+                    val exception = task.exception
+                    val message = when (exception) {
+                        is FirebaseAuthWeakPasswordException -> "Lozinka je preslaba"
+                        is FirebaseAuthUserCollisionException -> "Oval email se već koristi"
+                        is FirebaseAuthInvalidCredentialsException -> "Pogrešan email format"
+                        else -> exception?.localizedMessage ?: "Došlo je do pogreške"
+                    }
+                    onError(message)
                 }
             }
     }
 
-    fun login(email: String, password: String, onSuccess: () -> Unit) {
+    fun login(
+        email: String,
+        password: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
         _isLoading.value = true
         _errorMessage.value = ""
         auth.signInWithEmailAndPassword(email, password)
@@ -47,7 +61,13 @@ class AuthViewModel : ViewModel() {
                     _currentUser.value = auth.currentUser
                     onSuccess()
                 } else {
-                    _errorMessage.value = task.exception?.localizedMessage ?: "Login failed"
+                    val exception = task.exception
+                    val message = when (exception) {
+                        is FirebaseAuthInvalidUserException -> "Korisnik ne postoji"
+                        is FirebaseAuthInvalidCredentialsException -> "Pogrešna lozinka ili email"
+                        else -> "Prijava nije uspjela. Pokušajte ponovno"
+                    }
+                    onError(message)
                 }
             }
     }

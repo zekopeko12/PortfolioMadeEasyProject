@@ -21,14 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.portfoliomadeeasy.model.FinancialGoal
-import com.example.portfoliomadeeasy.viewmodel.ExpenseGoalsViewModel
 
 @Composable
 fun GoalEdit(
     goal: FinancialGoal,
     onSave: (FinancialGoal) -> Unit,
     navigation: NavController,
-    viewModel: ExpenseGoalsViewModel
 ) {
     var title by remember { mutableStateOf(goal.title) }
     var targetAmount by remember { mutableStateOf(goal.targetAmount.toString()) }

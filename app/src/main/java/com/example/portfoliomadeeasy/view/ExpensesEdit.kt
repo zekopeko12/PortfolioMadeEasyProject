@@ -28,9 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.example.portfoliomadeeasy.model.Expense
-import com.example.portfoliomadeeasy.viewmodel.ExpenseGoalsViewModel
 import com.example.portfoliomadeeasy.R
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -40,8 +38,6 @@ import java.util.Locale
 fun ExpensesEdit(
     expense: Expense,
     onSave: (Expense) -> Unit,
-    navigation: NavController,
-    viewModel: ExpenseGoalsViewModel
 ) {
     val context = LocalContext.current
 

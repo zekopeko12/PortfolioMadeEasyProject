@@ -35,14 +35,11 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.example.portfoliomadeeasy.viewmodel.ExpenseGoalsViewModel
 import com.example.portfoliomadeeasy.R
 import com.example.portfoliomadeeasy.model.Expense
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import kotlin.text.toFloat
-import kotlin.times
 
 enum class StatsTab(val label: String) {
     PIE("Rashodi"),
@@ -55,7 +52,6 @@ enum class StatsTab(val label: String) {
 @Composable
 fun StatsScreen(
     viewModel: ExpenseGoalsViewModel,
-    navigation: NavController,
 ) {
     var currentMonth by remember { mutableStateOf(LocalDate.now().withDayOfMonth(1)) }
     var currentYear by remember { mutableStateOf(LocalDate.now().year) }
@@ -88,7 +84,7 @@ fun StatsScreen(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(horizontal = 8.dp)
         ) {
-            items(StatsTab.values()) { tab ->
+            items(StatsTab.entries.toTypedArray()) { tab ->
                 Button(
                     onClick = { selectedTab = tab }
                 ) {
@@ -275,7 +271,7 @@ fun PieChart(
                 .padding(16.dp),
         ) {
             var startAngle = 0f
-            data.entries.forEachIndexed { index, (category, value) ->
+            data.entries.forEachIndexed { index, (category, _) ->
                 val sweepAngle = angles[category] ?: 0f
                 drawArc(
                     color = category.color,
